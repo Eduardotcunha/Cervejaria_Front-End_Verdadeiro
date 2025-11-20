@@ -4,6 +4,7 @@ import { Home } from './home/home';
 import { ProductListComponent } from './components/product-list/product-list';
 import { UserListComponent } from './components/user-list/user-list';
 import { ProductFormComponent } from './components/product-form/product-form'; // Importar
+import { UserFormComponent } from './components/user-form/user-form';
 export const routes: Routes = [
 
     {
@@ -18,4 +19,5 @@ export const routes: Routes = [
   
   
   { path: 'users', component: UserListComponent },       // Rota para listar usuários
+  { path: 'users/new', component: UserFormComponent },
 ];

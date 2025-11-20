@@ -1,0 +1,39 @@
+<h2>{{ isEditMode ? '✏️ Editar Usuário' : '➕ Cadastrar Novo Usuário' }}</h2>
+
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+
+  <div>
+    <label for="username">Nome de Usuário:</label>
+    <input id="username" type="text" formControlName="username">
+    <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched">
+      <small style="color: red;">O nome de usuário é obrigatório.</small>
+    </div>
+  </div>
+
+  <div *ngIf="!isEditMode || userForm.get('password')?.value">
+    <label for="password">Senha:</label>
+    <input id="password" type="password" formControlName="password">
+    <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+      <small style="color: red;">A senha é obrigatória e deve ter no mínimo 6 caracteres.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="role">Função (Role):</label>
+    <select id="role" formControlName="role">
+      <option *ngFor="let role of roles" [value]="role">
+        {{ role }}
+      </option>
+    </select>
+    <div *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
+      <small style="color: red;">A função (role) é obrigatória.</small>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="userForm.invalid">
+    {{ isEditMode ? 'Salvar Usuário' : 'Cadastrar Usuário' }}
+  </button>
+  
+  <p>Status do Formulário: <strong>{{ userForm.status }}</strong></p>
+
+</form>
