@@ -1,0 +1,15 @@
+<h2>🍻 Lista de Produtos</h2>
+
+<div *ngIf="products.length === 0">
+  Carregando produtos...
+</div>
+
+<ul *ngIf="products.length > 0">
+  <li *ngFor="let product of products">
+    <h3>{{ product.name }} ({{ product.beerType.name }})</h3>
+    <p>Descrição: {{ product.description }}</p>
+    <p>Preço: R$ {{ product.price  }}</p>
+    <p>Estoque: {{ product.stock }} unidades</p>
+<button (click)="addToCart(product)">Adicionar ao Carrinho</button>    <hr>
+  </li>
+</ul>

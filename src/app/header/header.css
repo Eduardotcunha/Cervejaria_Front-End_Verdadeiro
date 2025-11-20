@@ -1,0 +1,7 @@
+.navbar {
+    height: 90px; /* Defina a altura fixa da navbar */
+}
+.navbar-brand img {
+    height: 100px; /* Aumente a altura da logo */
+    width: auto; /* Mantenha a proporção */
+}

@@ -1,0 +1,51 @@
+<h2>{{ isEditMode ? '✏️ Editar Produto' : '➕ Cadastrar Novo Produto' }}</h2>
+
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+
+  <div>
+    <label for="name">Nome da Cerveja:</label>
+    <input id="name" type="text" formControlName="name">
+    <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">
+      <small style="color: red;">O nome é obrigatório.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="description">Descrição:</label>
+    <textarea id="description" formControlName="description"></textarea>
+    <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">
+      <small style="color: red;">A descrição é obrigatória e precisa ter no mínimo 10 caracteres.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="price">Preço:</label>
+    <input id="price" type="number" formControlName="price">
+    <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+      <small style="color: red;">O preço é obrigatório e deve ser maior que zero.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="stock">Estoque:</label>
+    <input id="stock" type="number" formControlName="stock">
+    <div *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+      <small style="color: red;">O estoque é obrigatório e não pode ser negativo.</small>
+    </div>
+  </div>
+  
+  <div formGroupName="beerType">
+    <h3>Tipo de Cerveja (Simulação)</h3>
+    <div>
+        <label for="beerTypeName">Tipo:</label>
+        <input id="beerTypeName" type="text" formControlName="name" readonly>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="productForm.invalid">
+    {{ isEditMode ? 'Salvar Edição' : 'Cadastrar Produto' }}
+  </button>
+  
+  <p>Status do Formulário: <strong>{{ productForm.status }}</strong></p>
+
+</form>

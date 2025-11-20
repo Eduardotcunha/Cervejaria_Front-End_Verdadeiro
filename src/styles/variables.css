@@ -1,0 +1,17 @@
+:root {
+    /* Paleta: Base 60% / Principal 30% / Destaque 10% */
+    --primary-color: #3D271E;  /* Cor principal (textos, títulos) */
+    --secondary-color: #FFC72C;/* Cor de destaque (botões, hover) */
+    --light-color: #F5EBE0;    /* Cor neutra / fundo */
+    --dark-color: #3D271E;     /* Mesmo que primary para consistência */
+    --muted-color: #7e6f66;    /* Tom neutro para textos secundários */
+    --warning-color: #FFC72C;  /* Destaque / aviso */
+    --success-color: #3D271E;  /* Reaproveitado como cor sólida */
+
+    /* Tipografia */
+    --font-family: 'Roboto', sans-serif;
+    --font-size-base: 18px;
+    --font-size-lg: 48px;
+    --font-size-md: 30px;
+    --font-size-sm: 22px;
+}

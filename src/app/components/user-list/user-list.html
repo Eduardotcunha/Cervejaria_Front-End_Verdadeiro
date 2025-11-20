@@ -1,0 +1,22 @@
+<h2>👤 Lista de Usuários</h2>
+
+<table *ngIf="users.length > 0; else loading">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.id }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.role }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #loading>
+  <p>Carregando usuários...</p>
+</ng-template>
