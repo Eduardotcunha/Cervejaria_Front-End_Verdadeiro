@@ -10,6 +10,18 @@
     </div>
   </div>
 
+  <div>
+    <label for="cpf">CPF:</label>
+    <input id="cpf" type="text" formControlName="cpf" placeholder="Ex: 12345678900">
+    
+    <div *ngIf="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
+      <small *ngIf="userForm.get('cpf')?.errors?.['required']" style="color: red;">O CPF é obrigatório.</small>
+      <small *ngIf="userForm.get('cpf')?.errors?.['cpfInvalid']" style="color: red;">
+        {{ userForm.get('cpf')?.errors?.['message'] || 'CPF é inválido ou está no formato incorreto.' }}
+      </small>
+    </div>
+  </div>
+
   <div *ngIf="!isEditMode || userForm.get('password')?.value">
     <label for="password">Senha:</label>
     <input id="password" type="password" formControlName="password">

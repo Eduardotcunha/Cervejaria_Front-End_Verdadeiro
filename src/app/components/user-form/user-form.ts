@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { UserService } from '../../services/user';
 import { User } from '../../models/user';
 import { CommonModule } from '@angular/common'; 
+import { cpfValidator } from '../../validators/custom-validators'; // <-- 1. IMPORTAR VALIDADOR
 
 @Component({
   selector: 'app-user-form',
@@ -47,7 +48,9 @@ export class UserFormComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]], 
       
       // Role é obrigatório e deve ser um dos valores definidos
-      role: ['USER', Validators.required] 
+      role: ['USER', Validators.required],
+      
+      cpf: ['', [Validators.required, cpfValidator()]]
     });
   }
 
