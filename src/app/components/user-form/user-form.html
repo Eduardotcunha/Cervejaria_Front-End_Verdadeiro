@@ -4,7 +4,7 @@
 
   <div>
     <label for="username">Nome de Usuário:</label>
-    <input id="username" type="text" formControlName="username">
+    <input id="username" type="text" formControlName="username"> 
     <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched">
       <small style="color: red;">O nome de usuário é obrigatório.</small>
     </div>
@@ -12,8 +12,7 @@
 
   <div>
     <label for="cpf">CPF:</label>
-    <input id="cpf" type="text" formControlName="cpf" placeholder="Ex: 12345678900">
-    
+    <input id="cpf" type="text" formControlName="cpf" placeholder="Ex: 12345678900" [readonly]="isEditMode">
     <div *ngIf="userForm.get('cpf')?.invalid && userForm.get('cpf')?.touched">
       <small *ngIf="userForm.get('cpf')?.errors?.['required']" style="color: red;">O CPF é obrigatório.</small>
       <small *ngIf="userForm.get('cpf')?.errors?.['cpfInvalid']" style="color: red;">
@@ -22,13 +21,23 @@
     </div>
   </div>
 
-  <div *ngIf="!isEditMode || userForm.get('password')?.value">
+  <div *ngIf="!isCurrentUser">
     <label for="password">Senha:</label>
-    <input id="password" type="password" formControlName="password">
+    <input 
+        id="password" 
+        type="password" 
+        formControlName="password"
+        placeholder="{{ isEditMode ? 'Deixe vazio para manter a senha' : '' }}">
+    
     <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
       <small style="color: red;">A senha é obrigatória e deve ter no mínimo 6 caracteres.</small>
     </div>
   </div>
+  
+  <p *ngIf="isCurrentUser" style="color: orange; margin-top: 10px;">
+    ⚠️ **Restrição:** Você não pode alterar sua própria senha ou nome de usuário nesta tela.
+  </p>
+
 
   <div>
     <label for="role">Função (Role):</label>

@@ -1,23 +1,35 @@
 <h2>🍻 Lista de Produtos</h2>
 
+<div *ngIf="isAdmin">
+    <a [routerLink]="['/products/new']" class="btn btn-primary">➕ Cadastrar Novo Produto</a>
+    <hr>
+</div>
+
+
 <div *ngIf="products.length === 0">
-  <ng-container *ngIf="!products || products.length === 0">
-    Carregando produtos ou lista vazia...
-  </ng-container>
+  <ng-container *ngIf="!products || products.length === 0">
+    Carregando produtos ou lista vazia...
+  </ng-container>
 </div>
 
 <ul *ngIf="products.length > 0">
-  <li *ngFor="let product of products; trackBy: trackById"> 
-    
-    <h3>{{ product?.name }} ({{ product?.beerStyle?.name }})</h3> 
-    
-    <p>Descrição: {{ product?.description }}</p>
-    <p>Preço: R$ {{ product?.price }}</p>
-    <p>Estoque: {{ product?.stock }} unidades</p>
-    
-    <button (click)="addToCart(product)">Adicionar ao Carrinho</button>    
-    <hr>
-    
-    <button *ngIf="product?.id" (click)="deleteProduct(product.id)">Excluir</button>
-  </li>
+  <li *ngFor="let product of products; trackBy: trackById"> 
+    
+    <h3>{{ product?.name }} ({{ product?.beerStyle?.name }})</h3> 
+    
+    <p>Descrição: {{ product?.description }}</p>
+    <p>Preço: R$ {{ product?.price }}</p>
+    <p>Estoque: {{ product?.stock }} unidades</p>
+    
+    
+    
+    <div *ngIf="isAdmin">
+        <hr>
+        <a [routerLink]="['/products/edit', product.id]">
+            <button>✏️ Editar</button>
+        </a>
+        
+        <button *ngIf="product?.id" (click)="deleteProduct(product.id)">🗑️ Excluir</button>
+    </div>
+  </li>
 </ul>

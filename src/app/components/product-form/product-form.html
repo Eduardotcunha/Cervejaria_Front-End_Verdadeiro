@@ -34,13 +34,17 @@
     </div>
   </div>
   
-  <div formGroupName="beerType">
-    <h3>Tipo de Cerveja (Simulação)</h3>
+  <div formGroupName="beerStyle">
+    <h3>Tipo de Cerveja (Simulação)</h3>
+    <div>
+        <label for="beerStyleName">Tipo:</label>
+        <input id="beerStyleName" type="text" formControlName="name"> 
+    </div>
     <div>
-        <label for="beerTypeName">Tipo:</label>
-        <input id="beerTypeName" type="text" formControlName="name" readonly>
-    </div>
-  </div>
+        <label for="beerStyleDesc">Descrição do Tipo:</label>
+        <input id="beerStyleDesc" type="text" formControlName="description"> 
+    </div>
+</div>
 
   <button type="submit" [disabled]="productForm.invalid">
     {{ isEditMode ? 'Salvar Edição' : 'Cadastrar Produto' }}
