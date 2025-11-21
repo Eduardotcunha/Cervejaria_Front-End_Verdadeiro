@@ -14,6 +14,7 @@ export const routes: Routes = [
 },
   { path: 'home', component: Home, title: 'Home' },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
+  
   { path: 'products', component: ProductListComponent }, // Rota para listar produtos
   { path: 'products/new', component: ProductFormComponent }, // Nova rota para cadastro
   

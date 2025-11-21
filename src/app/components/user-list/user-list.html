@@ -1,22 +1,27 @@
 <h2>👤 Lista de Usuários</h2>
 
 <table *ngIf="users.length > 0; else loading">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Username</th>
-      <th>Role</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let user of users">
-      <td>{{ user.id }}</td>
-      <td>{{ user.username }}</td>
-      <td>{{ user.role }}</td>
-    </tr>
-  </tbody>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Role</th>
+      <th>Ações</th>     </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.id }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.role }}</td>
+      <td>
+          <a [routerLink]="['/users/edit', user.id]">Editar</a> |
+          
+          <button (click)="deleteUser(user.id)">Excluir</button>
+      </td>
+    </tr>
+  </tbody>
 </table>
 
 <ng-template #loading>
-  <p>Carregando usuários...</p>
+  <p>Carregando usuários ou lista vazia...</p>
 </ng-template>

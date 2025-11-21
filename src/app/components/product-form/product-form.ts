@@ -1,39 +1,40 @@
 // src/app/components/product-form/product-form.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // Importar módulos reativos
-import { ProductService } from '../../services/product';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ProductService } from '../../services/product'; // CONFIRME se é 'product.service' ou 'product'
 import { Product } from '../../models/product';
-import { CommonModule } from '@angular/common'; // Para usar o ngIf/ngFor, se necessário
+import { CommonModule } from '@angular/common';
+// IMPORTS ESSENCIAIS PARA EDIÇÃO/ROTEAMENTO
+import { ActivatedRoute, Router, RouterLink } from '@angular/router'; 
+import { switchMap } from 'rxjs/operators';
+import { of, Observable } from 'rxjs'; 
 
 @Component({
   selector: 'app-product-form',
-  // Se for standalone, adicione os imports necessários aqui:
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], 
-  // -----------------------------------------------------------
+  imports: [CommonModule, ReactiveFormsModule, RouterLink], 
   templateUrl: './product-form.html',
   styleUrls: ['./product-form.css']
 })
 export class ProductFormComponent implements OnInit {
   
-  productForm!: FormGroup; // ! indica que será inicializada em ngOnInit
-  isEditMode: boolean = false; // Flag para saber se estamos editando ou cadastrando
+  productForm!: FormGroup; 
+  isEditMode: boolean = false; 
+  productId: number | null = null; 
 
-  // Injetar o FormBuilder e o Service
+  // Injetar FormBuilder, Service e os serviços de Roteamento
   constructor(
-    private fb: FormBuilder, 
-    private productService: ProductService
+    private fb: FormBuilder, // Necessário para initForm
+    private productService: ProductService,
+    private route: ActivatedRoute, 
+    private router: Router 
   ) { }
 
   ngOnInit(): void {
-    // 1. Inicializa o formulário
-    this.initForm();
-
-    // 2. Simulação de Modo Edição (apenas para testar o carregamento)
-    // Em um cenário real, você buscará o ID da rota (Router)
-    // if (ID_EXISTE_NA_ROTA) {
-    //   this.loadProductForEdit(ID);
-    // }
+    // 1. INICIALIZA O FORMULÁRIO (CORRIGINDO O ERRO DE PROPRIEDADE)
+    this.initForm(); 
+    // 2. ATIVA A LÓGICA DE EDIÇÃO/CRIAÇÃO
+    this.checkEditModeAndLoadData();
   }
 
   /**
@@ -41,50 +42,94 @@ export class ProductFormComponent implements OnInit {
    */
   initForm(): void {
     this.productForm = this.fb.group({
-      // ID é opcional (auto-gerado ou só para edição)
       id: [null], 
-      
-      name: ['', Validators.required], // Campo obrigatório
+      name: ['', Validators.required], 
       description: ['', [Validators.required, Validators.minLength(10)]],
-      
-      // O campo Price deve ser um número positivo
       price: [0, [Validators.required, Validators.min(0.01)]], 
       stock: [0, [Validators.required, Validators.min(0)]], 
-      
-      // Simulação do BeerType (em um sistema real seria um dropdown com ID)
-      beerType: this.fb.group({
+      // Campo aninhado para o tipo de cerveja
+      beerStyle: this.fb.group({
         id: [1, Validators.required],
-        name: ['IPA'],
+        name: ['IPA'], // Mantido para exibição, mas simplificado no onSubmit
         description: ['India Pale Ale']
       })
     });
   }
 
   /**
-   * Lógica de submissão do formulário.
+   * Implementa a lógica para carregar o produto em modo edição (via ID da rota).
+   */
+  checkEditModeAndLoadData(): void {
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const idParam = params.get('id');
+        
+        if (idParam) {
+          this.isEditMode = true;
+          this.productId = +idParam; 
+          // Chama o serviço HTTP para buscar o produto
+          return this.productService.getProductById(this.productId);
+        } else {
+          this.isEditMode = false;
+          return of(null); // Modo de cadastro
+        }
+      })
+    ).subscribe(product => {
+      if (product) {
+        // Preenche o formulário com os dados do produto buscados
+        this.productForm.patchValue(product);
+      }
+    });
+  }
+
+  /**
+   * Lógica de submissão: Envia POST (Criação) ou PUT (Edição).
    */
   onSubmit(): void {
     if (this.productForm.valid) {
-      // Cria uma cópia do objeto do formulário
-      const productData: Product = this.productForm.value;
+      let productData: Product = this.productForm.value;
 
-      if (this.isEditMode) {
-        console.log('Atualizando Produto:', productData);
-        // TODO: Chamar productService.updateProduct(productData);
+      // CORREÇÃO CRUCIAL: Simplificar o objeto beerStyle para o Backend
+      if (productData.beerStyle && productData.beerStyle.id) {
+          // O Backend geralmente espera apenas o ID para a criação/edição
+          productData.beerStyle = { id: productData.beerStyle.id } as any; 
       } else {
-        console.log('Cadastrando Novo Produto:', productData);
-        // TODO: Chamar productService.createProduct(productData);
+          console.error("O tipo de cerveja é obrigatório. Formulário Inválido.");
+          return;
       }
       
-      // Após sucesso, geralmente redirecionamos ou limpamos o formulário
-      this.productForm.reset(); 
+      let saveObservable: Observable<Product>; 
+
+      if (this.isEditMode) {
+        console.log('Atualizando Produto:', productData.name);
+        saveObservable = this.productService.updateProduct(productData);
+      } else {
+        console.log('Cadastrando Novo Produto:', productData.name);
+        saveObservable = this.productService.createProduct(productData);
+      }
+
+      // CHAMADA HTTP REAL E TRATAMENTO DA RESPOSTA
+      saveObservable.subscribe({
+        next: () => {
+          console.log(`Produto ${this.isEditMode ? 'atualizado' : 'cadastrado'} com sucesso!`);
+        
+        // 1. Navega para a lista de produtos
+        this.router.navigate(['/products']).then(() => {
+            
+            // 2. FORÇA A RECARGA DA PÁGINA:
+            // Isso força o Angular a re-executar o ngOnInit do componente de lista
+            window.location.reload(); 
+        });
+        },
+        error: (err) => {
+          console.error('Erro ao salvar produto:', err);
+          alert(`Falha ao salvar produto. Verifique o console: ${err.status}`);
+        }
+      });
+      
     } else {
-      // Marca todos os campos como "touched" para exibir mensagens de erro
       this.productForm.markAllAsTouched();
       console.error('Formulário Inválido!');
     }
   }
-
-  // TODO: Adicionar um método para carregar o produto no modo edição
-  // loadProductForEdit(id: number): void { ... }
 }
