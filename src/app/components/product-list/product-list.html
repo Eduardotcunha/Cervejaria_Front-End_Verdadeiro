@@ -1,35 +1,54 @@
 <h2>🍻 Lista de Produtos</h2>
 
-<div *ngIf="isAdmin">
+<div *ngIf="isAdmin()">
     <a [routerLink]="['/products/new']" class="btn btn-primary">➕ Cadastrar Novo Produto</a>
     <hr>
 </div>
 
-
-<div *ngIf="products.length === 0">
-  <ng-container *ngIf="!products || products.length === 0">
-    Carregando produtos ou lista vazia...
-  </ng-container>
+<div *ngIf="!products || products.length === 0" class="alert alert-info">
+  Carregando produtos ou lista vazia...
 </div>
 
 <ul *ngIf="products.length > 0">
-  <li *ngFor="let product of products; trackBy: trackById"> 
-    
-    <h3>{{ product?.name }} ({{ product?.beerStyle?.name }})</h3> 
-    
-    <p>Descrição: {{ product?.description }}</p>
-    <p>Preço: R$ {{ product?.price }}</p>
-    <p>Estoque: {{ product?.stock }} unidades</p>
-    
-    
-    
-    <div *ngIf="isAdmin">
-        <hr>
-        <a [routerLink]="['/products/edit', product.id]">
-            <button>✏️ Editar</button>
-        </a>
+    <li *ngFor="let product of products; trackBy: trackById"> 
         
-        <button *ngIf="product?.id" (click)="deleteProduct(product.id)">🗑️ Excluir</button>
-    </div>
-  </li>
+        <h3>{{ product?.name }} ({{ product?.beerStyle?.name }})</h3> 
+        
+        <p>Descrição: {{ product?.description }}</p>
+        <p>Preço: R$ {{ product?.price | number:'1.2-2' }}</p>
+        <p>Estoque: **{{ product?.stock }} unidades**</p>
+        
+        
+        <a [routerLink]="['/products', product.id]">
+            <button class="btn btn-sm btn-info me-2">🔍 Detalhes</button>
+        </a>
+
+        <button 
+            class="btn btn-success btn-sm me-2"
+            (click)="addToCart(product)"
+            [disabled]="!isUserLoggedIn() || product.stock === 0" 
+        >
+            <i class="fa fa-cart-plus"></i> Adicionar
+        </button>
+        
+        <span *ngIf="!isUserLoggedIn()" class="text-warning small ms-2">
+            (Faça login para comprar)
+        </span>
+
+
+        <div *ngIf="isAdmin()">
+            <hr>
+            <a [routerLink]="['/products/edit', product.id]">
+                <button class="btn btn-sm btn-warning">✏️ Editar</button>
+            </a>
+            
+            <button 
+                *ngIf="product?.id" 
+                (click)="deleteProduct(product.id)" 
+                class="btn btn-sm btn-danger ms-2"
+            >
+                🗑️ Excluir
+            </button>
+        </div>
+    </li>
 </ul>

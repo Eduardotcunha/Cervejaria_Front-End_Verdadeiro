@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product';
-// 1. Importar o HttpClient
+
 import { HttpClient } from '@angular/common/http'; 
 
 @Injectable({

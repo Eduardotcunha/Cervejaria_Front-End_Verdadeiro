@@ -1,34 +1,74 @@
-import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router'; 
+import { HttpErrorResponse } from '@angular/common/http'; 
+import { Subscription } from 'rxjs';
+
+import { CartService } from '../services/cart';
 import { AuthService } from '../services/auth';
-import { CommonModule } from '@angular/common'; // Necessário para *ngIf
+import { Cart } from '../models/cart';
 
 @Component({
   selector: 'app-header',
-  standalone: true, // Adicionado standalone: true
-  imports: [RouterLink, CommonModule], // Incluir CommonModule para *ngIf
+  standalone: true, 
+  imports: [CommonModule, RouterModule], 
   templateUrl: './header.html',
-  styleUrl: './header.css'
+  styleUrls: ['./header.css']
 })
-export class Header {
+export class HeaderComponent implements OnInit {
   
-  // O Angular precisa da injeção no construtor para usar os serviços
-  constructor(public authService: AuthService, private router: Router) { } 
-  // Tornamos o authService público para que possamos usá-lo no template HTML (this.authService.isAdmin(), etc.)
+  cartItemCount: number = 0;
+  private cartSubscription: Subscription | undefined;
+  
+  constructor(
+    private authService: AuthService,
+    private cartService: CartService,
+    private router: Router 
+  ) { }
 
-  onLogout(): void {
-    this.authService.logout();
-    
-    // Após o logout, redireciona o usuário para a página de login
-    this.router.navigate(['/login']);
+  ngOnInit(): void {
+    this.updateCartCount(); 
   }
 
-  // Funções auxiliares para uso no template
-  isLoggedIn() {
+  isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
-  isAdmin() {
-    return this.authService.isAdmin();
+  isAdmin(): boolean {
+    return this.authService.isAdmin(); 
   }
+
+  onLogout(): void {
+    this.authService.logout();
+    this.cartItemCount = 0;
+    this.router.navigate(['/']); 
+  }
+  
+  /**
+   * 🛑 CORRIGIDO: Usa loadOrCreateCart para obter a contagem.
+   */
+  updateCartCount(): void {
+    const userId = this.authService.getCurrentUserId();
+
+    if (userId !== null) {
+      this.cartService.loadOrCreateCart(userId).subscribe({
+        next: (cart: Cart) => {
+          // Calcula a contagem de itens de forma segura
+          this.cartItemCount = cart.items ? cart.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+        },
+        error: (err: HttpErrorResponse) => { 
+          this.cartItemCount = 0;
+          console.error('Erro ao buscar a contagem do carrinho:', err);
+        }
+      });
+    } else {
+      this.cartItemCount = 0;
+    }
+  }
+  
+  ngOnDestroy(): void {
+      if (this.cartSubscription) {
+          this.cartSubscription.unsubscribe();
+      }
+  }
 }

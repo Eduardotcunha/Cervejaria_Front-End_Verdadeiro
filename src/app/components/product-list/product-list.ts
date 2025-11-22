@@ -1,66 +1,118 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router'; 
 import { ProductService } from '../../services/product';
-import { AuthService } from '../../services/auth'; // <<<< NOVO IMPORT
+import { CartService } from '../../services/cart';
+import { AuthService } from '../../services/auth';    
 import { Product } from '../../models/product';
+import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-product-list',
-  standalone: true,
-  // Certifique-se de que RouterLink está importado
-  imports: [CommonModule, RouterLink], 
-  templateUrl: './product-list.html', // Ou o nome do seu template
-  styleUrls: ['./product-list.css']
+  selector: 'app-product-list',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './product-list.html',
+  styleUrls: ['./product-list.css']
 })
 export class ProductListComponent implements OnInit {
-  products: Product[] = [];
-  isAdmin: boolean = false; // <<<< NOVO ESTADO
+  
+  products: Product[] = [];
+  loading: boolean = true;
+  errorMessage: string | null = null;
 
-  // Injetar AuthService
-  constructor(
-    private productService: ProductService,
-    private authService: AuthService // <<<< NOVO SERVIÇO INJETADO
-  ) { }
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService, 
+    private authService: AuthService  
+  ) { }
 
-  ngOnInit(): void {
-    // 1. Verificar o Role do Usuário Logado
-    this.isAdmin = this.authService.isAdmin(); 
-    
-    // 2. Carregar a lista de produtos
-    this.loadProducts();
-  }
+  ngOnInit(): void {
+    this.loadProducts();
+  }
 
-  loadProducts(): void {
-    this.productService.getProducts().subscribe({
-      next: (data) => {
-        this.products = data;
-      },
-      error: (err) => {
-        console.error('Erro ao buscar produtos:', err);
-      }
-    });
-  }
+  loadProducts(): void {
+    this.productService.getProducts().subscribe({ 
+      next: (data) => {
+        this.products = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Erro ao carregar lista de produtos.';
+        this.loading = false;
+        console.error('Erro:', err);
+      }
+    });
+  }
 
-  // Método de exclusão (necessário para o botão de Excluir)
-  deleteProduct(id: number): void {
-    if (confirm('Tem certeza que deseja excluir este produto?')) {
-      this.productService.deleteProduct(id).subscribe({
-        next: () => {
-          console.log(`Produto ID ${id} excluído com sucesso.`);
-          // Remove o item da lista localmente
-          this.products = this.products.filter(p => p.id !== id);
-        },
-        error: (err) => {
-          console.error('Erro ao deletar produto:', err);
-          alert('Falha ao excluir produto. Verifique se você tem permissão.');
-        }
-      });
-    }
-  }
-  
-  // Função de track para otimização (opcional, mas boa prática)
-  trackById(index: number, product: Product): number | undefined {
-    return product.id;
-  }
+  // ====================================================
+  // 🛑 CORREÇÃO APLICADA AQUI
+  // ====================================================
+
+  /**
+   * Verifica se o usuário atual tem permissão de administrador.
+   */
+  isAdmin(): boolean {
+    return this.authService.isAdmin(); // 🛑 CORRIGIDO
+  }
+
+  /**
+   * Função para rastrear produtos por ID no *ngFor.
+   */
+  trackById(index: number, product: Product): number {
+    return product.id;
+  }
+  
+  /**
+   * Exclui um produto, chamando o ProductService.
+   */
+  deleteProduct(productId: number | undefined): void {
+    if (!productId || !confirm('Tem certeza que deseja excluir este produto?')) {
+      return;
+    }
+
+    this.productService.deleteProduct(productId).subscribe({
+      next: () => {
+        alert('Produto excluído com sucesso!');
+        this.products = this.products.filter(p => p.id !== productId);
+      },
+      error: (err) => {
+        alert('Erro ao excluir o produto. Verifique suas permissões.');
+        console.error('Erro de exclusão:', err);
+      }
+    });
+  }
+
+
+  // ====================================================
+  // FUNÇÃO PARA ADICIONAR ITEM À PARTIR DA LISTA
+  // ====================================================
+  addToCart(product: Product): void {
+    const userId = this.authService.getCurrentUserId();
+    
+    if (userId === null) {
+      alert('Você precisa estar logado para adicionar produtos ao carrinho.');
+      return;
+    }
+
+    if (product.stock === 0) {
+        alert('Produto esgotado!');
+        return;
+    }
+    
+    const quantity = 1; 
+
+    this.cartService.addItemToCart(userId, product.id, quantity).subscribe({
+      next: (cartResponse) => {
+        alert(`1x ${product.name} adicionado ao carrinho!`);
+      },
+      error: (err) => {
+        console.error('Erro ao adicionar ao carrinho:', err);
+        alert('Falha ao adicionar ao carrinho. Tente novamente.');
+      }
+    });
+  }
+
+  // Método auxiliar para o template
+  isUserLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
 }

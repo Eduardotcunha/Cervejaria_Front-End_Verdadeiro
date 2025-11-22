@@ -1,0 +1,50 @@
+<div class="container mt-5" *ngIf="product && !loading">
+    <div class="row">
+        <div class="col-lg-7">
+            <h2>{{ product.name }}</h2>
+            <p class="h4 text-success">R$ {{ product.price | number:'1.2-2' }}</p>
+            <p class="text-muted">{{ product.beerStyle.name }}</p>
+            <p>{{ product.description }}</p>
+            <p>Em Estoque: **{{ product.stock }}**</p>
+
+            <hr>
+
+            <form (ngSubmit)="addToCart()">
+                <div class="row pt-2">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <h6>Quantidade:</h6>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            [(ngModel)]="quantity" 
+                            name="quantity" 
+                            [min]="1" 
+                            [max]="product.stock"
+                            required
+                            style="width: 100px;"
+                        >
+                    </div>
+                </div>
+
+                <div class="row pb-3">
+                    <div class="col d-grid">
+                        <button 
+                            type="submit" 
+                            class="btn btn-success btn-lg" 
+                            [disabled]="!isUserLoggedIn() || product.stock === 0"
+                        >
+                            <i class="fa fa-cart-plus me-2"></i> Adicionar ao Carrinho
+                        </button>
+                        
+                        <p *ngIf="!isUserLoggedIn()" class="text-warning mt-2">
+                            Faça login para adicionar produtos.
+                        </p>
+                        <p *ngIf="product.stock === 0" class="text-danger mt-2">
+                            Produto esgotado.
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+</div>

@@ -1,7 +1,7 @@
 // src/app/App.ts
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Header } from "./header/header";
+import { HeaderComponent } from "./header/header";
 import { Footer } from "./footer/footer";
 // REMOVA ESTAS LINHAS:
 // import { ReactiveFormsModule } from '@angular/forms'; 
@@ -10,7 +10,7 @@ import { Footer } from "./footer/footer";
 @Component({
   selector: 'app-root',
   // MANTENHA APENAS o RouterOutlet e os componentes filhos
-  imports: [RouterOutlet, Header, Footer], 
+  imports: [RouterOutlet, HeaderComponent, Footer], 
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

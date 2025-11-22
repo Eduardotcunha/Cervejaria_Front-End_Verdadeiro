@@ -7,6 +7,8 @@ import { ProductFormComponent } from './components/product-form/product-form';
 import { UserFormComponent } from './components/user-form/user-form';
 import { AdminGuard } from './guards/guard';
 import { LoginComponent } from './components/login/login';
+import { ProductDetailsComponent } from './product-details/product-details';
+import { CartComponent } from './components/cart/cart';
 
 export const routes: Routes = [
 
@@ -18,17 +20,21 @@ export const routes: Routes = [
 
     // ✅ Rota da lista de produtos: ABERTA PARA TODOS.
     { path: 'products', component: ProductListComponent }, 
-    
-    // Rotas de GERENCIAMENTO de Produtos: PROTEGIDAS PELO ADMIN GUARD.
+
+    // =========================================================
+    // 🛑 ROTAS ESPECÍFICAS DE PRODUTO (DEVE VIR ANTES de /:id)
+    // =========================================================
     { path: 'products/new', component: ProductFormComponent, canActivate: [AdminGuard] },
     { path: 'products/edit/:id', component: ProductFormComponent , canActivate: [AdminGuard] },
     
-    // Rota da lista de Usuários: PROTEGIDA (Apenas ADMIN vê a lista).
-    { path: 'users', component: UserListComponent , canActivate: [AdminGuard] },       
-    
-    // Cadastro de Novo Usuário (Aberto)
+    // ✅ Rota de Detalhes de Produto (AGORA LIDA APENAS COM NÚMEROS)
+    { path: 'products/:id', component: ProductDetailsComponent }, // Rota genérica com parâmetro ID
+
+    // 🛑 Rota do carrinho
+    { path: 'cart', component: CartComponent },
+
+    // Rotas de Usuários
+    { path: 'users', component: UserListComponent , canActivate: [AdminGuard] },       
     { path: 'users/new', component: UserFormComponent },
-    
-    // Edição de Usuário: PROTEGIDA.
     { path: 'users/edit/:id', component: UserFormComponent, canActivate: [AdminGuard] },
 ];

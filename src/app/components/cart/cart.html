@@ -1,0 +1,56 @@
+<h2>🛒 Seu Carrinho de Compras</h2>
+
+<div *ngIf="loading" class="alert alert-info">Carregando carrinho...</div>
+
+<div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+<div *ngIf="!loading && cart && cart.items.length === 0" class="alert alert-warning">
+    Seu carrinho está vazio. <a [routerLink]="['/products']">Comece a comprar agora!</a>
+</div>
+
+<div *ngIf="!loading && cart && cart.items.length > 0">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Preço</th>
+                <th>Quantidade</th>
+                <th>Total</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of cart.items">
+                <td>
+                    <a [routerLink]="['/products', item.product.id]">{{ item.product.name }}</a>
+                </td>
+                <td>{{ item.product.price | currency:'BRL' }}</td>
+                <td>
+                    <input 
+                        type="number" 
+                        [(ngModel)]="item.quantity" 
+                        [min]="1" 
+                        [max]="item.product.stock"
+                        class="form-control form-control-sm"
+                        style="width: 80px;"
+                        
+                        (change)="onUpdateQuantity(item)"
+                    >
+                </td>
+                <td>{{ item.product.price * item.quantity | currency:'BRL' }}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" (click)="onRemoveItem(item.product.id)">
+                        🗑️ Remover
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="row mt-4">
+        <div class="col-md-6 offset-md-6 text-end">
+            <h4>Subtotal ({{ totalItems }} itens): {{ subtotal | currency:'BRL' }}</h4>
+            <button class="btn btn-success btn-lg mt-3" (click)="onCheckout()">Finalizar Compra</button>
+        </div>
+    </div>
+</div>
